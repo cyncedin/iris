@@ -1,0 +1,14 @@
+{
+  "name": "@iris/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts", "./*": "./src/*" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
+    "chrono-node": "^2.10.3",
+    "nodemailer": "^7.0.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": { "@types/nodemailer": "^6.4.17" }
+}

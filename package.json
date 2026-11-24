@@ -1,0 +1,32 @@
+{
+  "name": "iris-mail",
+  "private": true,
+  "license": "MIT",
+  "version": "0.1.0",
+  "description": "Iris: keyboard-first Gmail client for macOS with a CLI and an MCP server for AI agents",
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "packages/server",
+    "packages/cli",
+    "packages/mcp",
+    "packages/web"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "npm run build -w @iris/web",
+    "dev:web": "npm run dev -w @iris/web",
+    "start": "node --no-warnings=ExperimentalWarning packages/cli/src/main.ts serve",
+    "demo": "node --no-warnings=ExperimentalWarning packages/cli/src/main.ts serve --demo",
+    "typecheck": "tsc -p tsconfig.json --noEmit && npm run typecheck -w @iris/web",
+    "test": "node --no-warnings=ExperimentalWarning --test packages/*/test/*.test.ts",
+    "install:mac": "bash scripts/install-mac.sh",
+    "mcp": "node --no-warnings=ExperimentalWarning packages/mcp/src/main.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

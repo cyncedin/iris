@@ -1,0 +1,1097 @@
+/* ---------------------------------------------------------------- calendar
+   Split from styles.css. Tokens only: event colors come from calTone() (src/calutil.ts) as inline
+   --ev-bg / --ev-fg / --ev-border / --ev-swatch / --ev-bs / --ev-bw. No hex values in this file. */
+:root {
+  --cal-axis: 46px;
+}
+/* the surface events sit on: bordered blocks are filled with it, every block keeps a 1px gap in it */
+.daypane {
+  --cal-surface: var(--bg-sunken);
+}
+.weekpage {
+  --cal-surface: var(--bg);
+}
+/* Paper --text-3 is 4.3:1 on --bg-sunken: use --text-2 there */
+[data-theme="paper"] .daypane,
+[data-theme="paper"] .week-side {
+  --cal-text-3: var(--text-2);
+}
+
+.cal-spin {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  border-top-color: var(--text-2);
+  animation: cal-spin 0.8s linear infinite;
+  flex: none;
+}
+@keyframes cal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.cal-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-xs);
+  background: var(--ev-swatch);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 8%, transparent);
+  flex: none;
+}
+.cal-swatch.sm {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: var(--sp-1h);
+}
+.cal-error {
+  margin: var(--sp-2) var(--sp-3);
+  padding: var(--sp-2h) var(--sp-3);
+  border-radius: var(--r-md);
+  background: var(--danger-bg);
+  box-shadow: inset 3px 0 0 var(--danger);
+  color: var(--text);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.cal-error .dim {
+  color: var(--text); /* --text-2 is 4.4:1 on Paper --danger-bg */
+}
+.cal-error-actions {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+/* day pane: right pane next to the list / thread. Opens instantly (E1), width never animates. */
+.daypane {
+  width: 330px;
+  flex: none;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-sunken);
+}
+@media (max-width: 1100px) {
+  .daypane {
+    width: 290px;
+  }
+}
+.cal-head {
+  height: 46px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-2) 0 var(--sp-3);
+  border-bottom: 1px solid var(--line);
+}
+.cal-head .icon-btn {
+  width: 26px;
+  height: 26px;
+}
+.cal-head .btn.sm {
+  padding: 0 var(--sp-2);
+  margin: 0 var(--sp-0h);
+}
+.cal-title {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  margin-right: var(--sp-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* grid. isolation keeps every calendar z-index (sticky 70, now 60, draft 75, ghost 80) below modals and toasts */
+.cal-grid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+}
+.cal-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  position: relative;
+}
+.cal-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 70;
+  background: var(--cal-surface);
+}
+.cal-dayheads,
+.cal-allday {
+  display: grid;
+  margin-left: var(--cal-axis);
+}
+.cal-dayheads {
+  border-bottom: 1px solid var(--line);
+}
+.cal-dayhead {
+  padding: var(--sp-2) 0 var(--sp-1h);
+  color: var(--text-2);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-1);
+  font-variant-numeric: tabular-nums;
+}
+.cal-dayhead b {
+  min-width: 28px;
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-sm);
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  transition: background-color var(--dur-hover) ease;
+}
+.cal-dayhead.today b {
+  background: var(--today-bg);
+}
+.cal-allday {
+  border-bottom: 1px solid var(--line);
+  padding: 3px 0;
+}
+.cal-allday-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 2px;
+  min-width: 0;
+}
+.cal-body {
+  position: relative;
+  display: flex;
+}
+.cal-axis {
+  width: var(--cal-axis);
+  flex: none;
+  position: relative;
+}
+.cal-axis span {
+  position: absolute;
+  right: var(--sp-2);
+  transform: translateY(-50%);
+  font-size: var(--fs-12);
+  line-height: var(--lh-12);
+  color: var(--cal-text-3, var(--text-3));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.cal-cols {
+  flex: 1;
+  display: grid;
+  position: relative;
+  background-image: repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 44px);
+  min-width: 0;
+}
+.cal-col {
+  position: relative;
+  border-left: 1px solid var(--line);
+  min-width: 0;
+  touch-action: none;
+}
+.avail-mode .cal-col {
+  cursor: copy;
+}
+
+/* event blocks. style (filled / bordered / dashed / focused) and past only pick ramp steps in calTone(). */
+.cal-ev,
+.cal-chip {
+  --ev-bw: 0px;
+  background: var(--ev-bg);
+  color: var(--ev-fg);
+  border: var(--ev-bw) var(--ev-bs, solid) var(--ev-border);
+  box-shadow: 0 0 0 1px var(--cal-surface, var(--bg));
+  border-radius: var(--r-xs);
+  font-size: var(--fs-13);
+  line-height: 16px;
+  letter-spacing: var(--tracking-ui);
+  overflow: hidden;
+  cursor: pointer;
+  min-width: 0;
+  user-select: none;
+  transition: box-shadow 100ms ease;
+}
+.cal-ev {
+  position: absolute;
+  padding: calc(4px - var(--ev-bw)) calc(5px - var(--ev-bw));
+}
+.cal-ev.half {
+  padding-top: calc(3px - var(--ev-bw));
+  padding-bottom: calc(3px - var(--ev-bw));
+}
+.cal-ev.tiny {
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: 2.5px;
+  font-size: var(--fs-11);
+  line-height: calc(11px - 2 * var(--ev-bw));
+}
+.cal-chip {
+  height: 20px;
+  line-height: calc(20px - 2 * var(--ev-bw));
+  padding: 0 calc(5px - var(--ev-bw));
+  white-space: nowrap;
+}
+.cal-ev-title {
+  font-weight: var(--fw-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-ev:not(.short) .cal-ev-title {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.cal-ev-time {
+  font-size: var(--fs-12);
+  font-weight: var(--fw-regular);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.cal-ev.tiny .cal-ev-time {
+  font-size: inherit;
+}
+.cal-ev.hl,
+.cal-chip.hl {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+.cal-ev.ghost {
+  pointer-events: none;
+  opacity: 0.85; /* drag preview: temporary, not text the user reads */
+  z-index: 80;
+}
+.cal-ev.k-draft {
+  pointer-events: none;
+  z-index: 75 !important;
+}
+.cal-ev-handle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  cursor: ns-resize;
+}
+/* availability mode: real events recede to their past tone (Calendar.tsx), and stop taking clicks */
+.avail-mode .cal-ev.k-event,
+.avail-mode .cal-ev.k-invite,
+.avail-mode .cal-chip {
+  pointer-events: none;
+}
+.cal-now {
+  position: absolute;
+  left: -1px;
+  right: 0;
+  height: 2px;
+  background: var(--now);
+  z-index: 60;
+  pointer-events: none;
+}
+.cal-now-bulb {
+  position: absolute;
+  left: -5px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--now);
+}
+
+/* week page: replaces the list */
+.weekpage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.week-top {
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-4);
+  border-bottom: 1px solid var(--line);
+}
+.week-label {
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tracking-display);
+  margin: 0 var(--sp-2h) 0 var(--sp-1h);
+  white-space: nowrap;
+}
+.week-mode {
+  color: var(--text-2);
+  font-size: var(--fs-13);
+  margin-right: var(--sp-2);
+}
+.week-top .btn-primary {
+  margin-left: var(--sp-1h);
+}
+.week-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.week-side {
+  width: 236px;
+  flex: none;
+  border-right: 1px solid var(--line);
+  background: var(--bg-sunken);
+  padding: var(--sp-4) var(--sp-3) var(--sp-8);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+.week-side .contact-h {
+  color: var(--cal-text-3, var(--text-3));
+}
+.week-grid {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.minimonth-head {
+  display: flex;
+  align-items: center;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-13);
+  margin-bottom: var(--sp-1h);
+}
+.minimonth-head .icon-btn {
+  width: 24px;
+  height: 24px;
+}
+.minimonth-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.mm-dow {
+  font-size: var(--fs-11);
+  line-height: var(--lh-11);
+  color: var(--cal-text-3, var(--text-3));
+  padding: 2px 0 4px;
+}
+.mm-day {
+  height: 26px;
+  border-radius: var(--r-sm);
+  font-size: var(--fs-12);
+  color: var(--text-2);
+  transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease;
+}
+.mm-day.out {
+  color: var(--cal-text-3, var(--text-3));
+}
+.mm-day.inweek {
+  background: var(--hover);
+}
+.mm-day.today {
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+}
+/* the selected day is the calendar's cursor: --cursor fill plus the cursor-bar color as a ring
+   (Paper --cursor alone is indistinguishable from the in-week --hover band) */
+.mm-day.on {
+  background: var(--cursor);
+  color: var(--text);
+  font-weight: var(--fw-semibold);
+  box-shadow: inset 0 0 0 1.5px var(--cursor-bar);
+}
+.side-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.side-sec .contact-h {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* calendar list / view toggles: <button role="checkbox"> rows (CalCheck) */
+.cal-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: calc(100% + 2 * var(--sp-1h));
+  min-height: 28px;
+  margin: 0 calc(-1 * var(--sp-1h));
+  padding: 0 var(--sp-1h);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-13);
+  color: var(--text-2);
+  text-align: left;
+  min-width: 0;
+  transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+}
+.cal-row.on {
+  color: var(--text);
+}
+.cal-check {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--r-xs);
+  flex: none;
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1.5px var(--ev-border);
+  color: var(--ev-fg);
+}
+.cal-row.on .cal-check {
+  background: var(--ev-swatch);
+  box-shadow: none;
+}
+.cal-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* share availability */
+.avail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-start;
+}
+.avail-panel .contact-h {
+  margin: var(--sp-1h) 0 0;
+}
+.avail-title {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-15);
+  line-height: var(--lh-15);
+}
+.avail-suggest .i {
+  color: var(--brand-text); /* AI sparkle (purple budget) */
+}
+.seg {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-btn);
+  box-shadow: var(--ring);
+}
+.seg button {
+  flex: 1;
+  height: 26px;
+  padding: 0 var(--sp-1);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-12);
+  color: var(--text-2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+}
+.seg button.on {
+  background: var(--activated-bg);
+  color: var(--activated-text);
+}
+.avail-slots {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.avail-slot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-1h);
+  font-size: var(--fs-13);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.avail-slot .icon-btn {
+  width: 22px;
+  height: 22px;
+}
+.avail-preview {
+  width: 100%;
+  white-space: pre-wrap;
+  font-size: var(--fs-12);
+  line-height: 18px;
+  padding: var(--sp-2) var(--sp-2h);
+  border-radius: var(--r-btn);
+  background: var(--hover);
+  color: var(--text-2);
+}
+.avail-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.avail-actions button.primary {
+  margin-top: var(--sp-1);
+}
+
+/* popover. Scales out of the clicked block when opened with the pointer; instant from the keyboard
+   (--dur-popover is 0 under html[data-input=keyboard]); opacity only under reduced motion. */
+.cal-pop-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-popover);
+}
+/* the rows scroll, not the popover, so the … menu can extend past its edge */
+.cal-pop {
+  position: fixed;
+  z-index: var(--z-popover);
+  width: 340px;
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-raised);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-high), var(--ring);
+  padding: var(--sp-3) var(--sp-3) var(--sp-4) var(--sp-4);
+  transform-origin: var(--pop-ox, 50%) var(--pop-oy, 0px);
+  transition: opacity var(--dur-popover) var(--ease-out), transform var(--dur-popover) var(--ease-out);
+}
+@starting-style {
+  .cal-pop {
+    opacity: 0;
+    transform: scale(var(--scale-popover));
+  }
+}
+.pop-head {
+  position: relative;
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2h);
+}
+.pop-head .cal-swatch {
+  margin-top: 6px;
+}
+.pop-head .icon-btn {
+  margin: -3px 0;
+}
+.pop-title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-15);
+  line-height: var(--lh-15);
+  font-weight: var(--fw-semibold);
+  word-break: break-word;
+}
+.pop-title.editable {
+  cursor: text;
+}
+.pop-menu {
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  z-index: 2;
+  min-width: 220px;
+  background: var(--bg-raised);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-high), var(--ring);
+  padding: var(--sp-1);
+  display: flex;
+  flex-direction: column;
+  transform-origin: top right;
+  transition: opacity var(--dur-popover) var(--ease-out), transform var(--dur-popover) var(--ease-out);
+}
+@starting-style {
+  .pop-menu {
+    opacity: 0;
+    transform: scale(var(--scale-popover));
+  }
+}
+.pop-menu button,
+.pop-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  height: 32px;
+  padding: 0 var(--sp-2h);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-13);
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+  transition: background-color var(--dur-hover) ease;
+}
+.pop-menu .i {
+  color: var(--icon);
+}
+.pop-rows {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  font-size: var(--fs-13);
+  line-height: var(--lh-13);
+}
+/* rows: a 16px icon in a 24px gutter instead of text keys */
+.pop-row,
+.inv-row {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: var(--sp-2);
+  align-items: center;
+  font-size: var(--fs-13);
+  line-height: var(--lh-13);
+}
+.pop-row.top,
+.inv-row.top {
+  align-items: start;
+}
+.pop-k,
+.inv-k {
+  height: 20px;
+  display: grid;
+  place-items: center start;
+  color: var(--icon);
+}
+.pop-row.conf .pop-k,
+.inv-row.conf .inv-k {
+  height: 28px; /* centered on the Join button */
+}
+.pop-when {
+  font-variant-numeric: tabular-nums;
+}
+.pop-conf,
+.inv-conf {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+.cal-join {
+  height: 28px;
+  padding: 0 var(--sp-3);
+  text-decoration: none;
+}
+.pop-url {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pop-who,
+.inv-who {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+.pop-desc {
+  white-space: pre-wrap;
+  color: var(--text-2);
+  word-break: break-word;
+}
+.att-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-13);
+  min-width: 0;
+}
+.att-row .avatar {
+  position: relative;
+}
+.att-person {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* RSVP badge on the avatar; the ring and glyph take the surface color (popover: raised, invite card: base) */
+.att-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--att-ring, var(--bg-raised));
+  box-shadow: 0 0 0 1.5px var(--att-ring, var(--bg-raised));
+}
+.att-badge .i {
+  width: 9px;
+  height: 9px;
+}
+.att-badge.ok {
+  background: var(--success);
+}
+.att-badge.no {
+  background: var(--danger);
+}
+.att-badge.maybe {
+  background: var(--warning);
+}
+.att-badge.wait {
+  background: var(--text-3);
+}
+.pop-rsvp,
+.pop-ask {
+  flex: none;
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-2h);
+  border-top: 1px solid var(--line-2); /* --line equals --bg-raised in Graphite */
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1h);
+  flex-wrap: wrap;
+}
+.pop-rsvp-k {
+  width: 52px;
+  font-size: var(--fs-12);
+  color: var(--text-2);
+}
+.pop-ask {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.pop-ask-title {
+  font-weight: var(--fw-semibold);
+}
+.pop-ask-actions {
+  display: flex;
+  gap: var(--sp-1h);
+  flex-wrap: wrap;
+}
+.rsvp {
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+}
+.rsvp.on {
+  background: var(--activated-bg);
+  color: var(--activated-text);
+  box-shadow: none;
+}
+.rsvp:focus-visible,
+.inv-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cal-ev:hover,
+  .cal-chip:hover {
+    box-shadow: 0 0 0 1px var(--cal-surface, var(--bg)), var(--shadow-medium);
+  }
+  .cal-dayhead:not(.today):hover b {
+    background: var(--hover);
+  }
+  .mm-day:not(.on):hover {
+    background: var(--hover-strong);
+    color: var(--text);
+  }
+  .cal-row:hover {
+    background: var(--hover);
+    color: var(--text);
+  }
+  .seg button:not(.on):hover {
+    background: var(--hover);
+    color: var(--text);
+  }
+  .pop-menu button:hover,
+  .pop-menu a:hover {
+    background: var(--menu-active);
+  }
+  .rsvp:not(.on):hover {
+    background: var(--hover-strong);
+  }
+  .ef-opt:not(.on):hover {
+    background: var(--hover);
+  }
+}
+
+/* event editor (.modal motion is shared; WP-A binds it to --dur-modal) */
+.modal-backdrop.event-backdrop {
+  background: color-mix(in srgb, var(--overlay) 58%, transparent); /* ≈ rgba(71,69,67,.35): the grid stays visible */
+  padding-top: 9vh;
+}
+.modal-backdrop.event-backdrop.with-daypane {
+  padding-right: 330px;
+}
+.modal.event-form {
+  width: min(560px, calc(100vw - 40px));
+  max-height: 84vh;
+  overflow-y: auto;
+  overflow-x: visible;
+  padding: 0 var(--sp-5) var(--sp-4);
+  gap: 0;
+}
+.event-form .modal-title {
+  padding: var(--sp-4) 0 var(--sp-1);
+}
+.ef-title,
+.ef-title:focus {
+  height: auto;
+  font-size: var(--fs-18);
+  line-height: var(--lh-18);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--tracking-display);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: var(--sp-2) 0 var(--sp-2h);
+  box-shadow: inset 0 -1px 0 var(--line);
+  outline: none;
+}
+.ef-title:focus {
+  box-shadow: inset 0 -1px 0 var(--focus); /* the focus indicator */
+}
+/* form lines: icon gutter + field; the field's own text label is kept for screen readers only */
+.ef-line {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: var(--sp-2);
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+}
+.ef-icon {
+  height: 38px;
+  display: grid;
+  place-items: center start;
+  color: var(--icon);
+}
+.ef-body {
+  min-width: 0;
+}
+.ef-line .field {
+  border-bottom: 0;
+}
+.ef-line .field-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.ef-sugg {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 var(--sp-1h);
+}
+.ef-opt {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2h);
+  height: 32px;
+  padding: 0 var(--sp-2);
+  margin-left: calc(-1 * var(--sp-2));
+  border-radius: var(--r-sm);
+  text-align: left;
+  transition: background-color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out);
+}
+.ef-opt.on {
+  background: var(--menu-active);
+}
+.ef-radio {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--line-strong);
+  flex: none;
+}
+.ef-radio.on {
+  box-shadow: inset 0 0 0 4px var(--brand);
+}
+.ef-when {
+  flex: 1;
+  font-size: var(--fs-13);
+  font-variant-numeric: tabular-nums;
+}
+.ef-dur {
+  font-size: var(--fs-12);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.ef-hint {
+  padding: 0 0 var(--sp-2);
+}
+.ef-desc,
+.ef-desc:focus {
+  display: block;
+  width: 100%;
+  min-height: 60px;
+  margin: 0;
+  padding: var(--sp-2h) 0;
+  resize: vertical;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+}
+.ef-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2h);
+  min-height: 38px;
+}
+.event-form > .ef-row {
+  padding-left: 32px; /* aligned with the line gutter */
+}
+.cal-row.ef-meet {
+  width: auto;
+  margin: 0;
+  padding: 0 var(--sp-1h);
+  color: var(--text);
+}
+.ef-select select {
+  max-width: 240px;
+  height: 28px;
+}
+.modal-check.ef-check {
+  border: 0;
+  padding: 0;
+}
+.ef-foot,
+.ef-ask {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.ef-foot button.primary {
+  margin-top: 0;
+}
+.ef-gcal {
+  margin-left: auto;
+}
+.ef-ask-title {
+  font-weight: var(--fw-semibold);
+}
+
+/* invite card in a thread */
+.invite {
+  --att-ring: var(--bg);
+  border-radius: var(--r-lg);
+  box-shadow: var(--ring);
+  padding: var(--sp-4);
+  margin: var(--sp-1) 0 var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2h);
+  background: var(--bg);
+}
+.inv-head {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+}
+.inv-tile {
+  width: 44px;
+  height: 48px;
+  border-radius: var(--r-md);
+  background: var(--hover);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+.inv-tile span {
+  font-size: var(--fs-11);
+  line-height: var(--lh-11);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ev-fg); /* red ramp via calTone (InviteCard.tsx): --now is 3.8:1 / 2.9:1 on --hover */
+}
+.inv-tile b {
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: var(--fw-medium);
+}
+.inv-headtext {
+  min-width: 0;
+}
+.inv-title {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-15);
+  line-height: var(--lh-15);
+}
+.k-cancel .inv-title {
+  text-decoration: line-through;
+  color: var(--text-2);
+}
+.inv-sub {
+  display: flex;
+  align-items: center;
+}
+.inv-v {
+  min-width: 0;
+}
+.inv-btns {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1h);
+  flex-wrap: wrap;
+}
+.inv-note {
+  font-weight: var(--fw-medium);
+}
+.inv-about {
+  white-space: pre-wrap;
+  color: var(--text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+  word-break: break-word;
+}
+.inv-about.open {
+  display: block;
+  cursor: auto;
+}
+
+/* glass theme (styles.css "glass material layer"): popovers become glass cards. The day pane's glass and the
+   floating sheet come from styles.css; event colors stay on calTone's light steps (CAL_SURFACES.glass). */
+[data-theme="glass"] .cal-pop {
+  background: var(--glass-pop);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+  box-shadow: var(--glass-rim), var(--shadow-high), 0 0 0 1px var(--glass-edge);
+}
+/* nested inside .cal-pop's backdrop root, so it can't blur: an opaque card */
+[data-theme="glass"] .pop-menu {
+  background: var(--bg-raised);
+  box-shadow: var(--glass-rim), var(--shadow-high), 0 0 0 1px var(--glass-edge);
+}
